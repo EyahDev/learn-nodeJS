@@ -1,4 +1,4 @@
-// Création de la variable utile à l'initialisation pour init le serveur
+// Création de la variable utile à l'initialisation du serveur
 var http = require('http');
 
 // Création de la variable utile à la récupération de l'url
