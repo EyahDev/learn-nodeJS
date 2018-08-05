@@ -1,28 +1,29 @@
+var cookieSession = require('cookie-session');
 var express = require('express');
 var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
 
 var app = express();
 
 var jsonParser = bodyParser.json();
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.use(cookieParser());
+app.use(cookieSession({
+    name: 'session',
+    keys: ['unchainedecaracterepoursignerlecookie'],
+    maxAge: 24 * 60 * 60 * 1000
+}));
 
 app.get('/', jsonParser, function(req, res){
     // Définition du header
     res.setHeader('Content-Type', 'text/html');
 
-    // Création d'une variable qui récupère le cookie todolist
-    var todolist = req.cookies.todolist;
-
-    // Si aucun cookie todolist n'existe création du cookie todolist et mise à null
-    if (!todolist) {
-        res.cookie('todolist', []);
+    // Création du tableau qui va contenir la todolist si elle n'existe pas déjà
+    if (!req.session.todolist) {
+        req.session.todolist = [];
     }
 
     // Rendu de la page
-    res.render('todolist/todolist.twig', {todolist: todolist})
+    res.render('todolist/todolist.twig', {todolist: req.session.todolist})
 });
 
 app.post('/api/add', urlencodedParser, function(req, res){
@@ -31,27 +32,27 @@ app.post('/api/add', urlencodedParser, function(req, res){
         res.sendStatus(400)
     }
 
-    // Récupération de la todolist depuis les cookies
-    var todolist = req.cookies.todolist;
-    todolist.push(req.body.newTodo);
+    // Push de la nouvelle chose à faire dans la liste
+    var list = req.session.todolist;
+    list.push(req.body.newTodo);
 
-    // Ajout de la nouvelle tache à la liste
-    res.cookie('todolist', todolist);
+    // Set de session modifié
+    req.session.todolist = list;
 
-
+    // Redirige vers la liste
     res.redirect(req.get('referer'));
 });
 
-app.get('/api/remove/:todo', jsonParser, function(req, res){
+app.get('/api/remove/:todo', urlencodedParser, function(req, res){
     // Déclaration de l'entrée à supprimer
     var toRemove = req.params.todo;
 
-    // Récupération de la todolist depuis les cookies et supprimer l'entrée
-    var todolist = req.cookies.todolist;
-    todolist.splice(todolist.indexOf(toRemove), 1 );
+    // Récupération de la todolist depuis la session et supprime l'entrée
+    var list = req.session.todolist;
+    list.splice(list.indexOf(toRemove), 1 );
 
-    // Ajout de la nouvelle tache à la liste
-    res.cookie('todolist', todolist);
+    // Set de session modifié
+    req.session.todolist = list;
 
     //Redirige vers la page d'ou provient la requête intial
     res.redirect(req.get('referer'));

@@ -3,13 +3,15 @@
 {% block body %}
     <h2>ToDo List</h2>
     <div id="todolist">
-        {% for todo in todolist if todolist %}
+        {% if todolist %}
             <ul>
-                <li>{{ todo }} - <a href="api/remove/{{ todo }}" style="font-size: 20px">&#128500;</a></li>
+                {% for todo in todolist if todolist %}
+                    <li>{{ todo }} - <a href="api/remove/{{ todo }}" style="font-size: 20px">&#128500;</a></li>
+                {% endfor %}
             </ul>
         {% else %}
             <p>Rien à faire aujourd'hui, prenez du temps pour vous :)</p>
-        {% endfor %}
+        {% endif %}
     </div>
 
     <form action="/api/add" method="post">
