@@ -42,7 +42,7 @@ app.get('/etage/:etagenum', function(req, res) {
 
     // Gestion de l'erreur dans le cas ou l'étage n'est pas un number
     if (!isNaN(req.params.etagenum)) {
-        res.render('etage.html.twig', {etage: req.params.etagenum});
+        res.render('etage.twig', {etage: req.params.etagenum});
     } else {
         res.status(404).send(req.params.etagenum +' ?? Ce  n\'est pas un étage ça !');
     }
